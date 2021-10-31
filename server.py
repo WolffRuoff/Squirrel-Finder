@@ -100,15 +100,34 @@ def index():
   # DEBUG: this is debugging code to see what request looks like
   print(request.args)
 
+  # get dropdown values
+
+  cursor = g.conn.execute("SELECT firstname FROM squirrel")
+  names = []
+  for result in cursor:
+    names.append(result['firstname'])
+  cursor.close()
+
+  cursor = g.conn.execute("SELECT zonename FROM park_zone")
+  zone_names = []
+  for result in cursor:
+    zone_names.append(result['zonename'])
+  cursor.close()
+
+  cursor = g.conn.execute("SELECT name FROM subway_entrance")
+  entrance_names = []
+  for result in cursor:
+    entrance_names.append(result['name'])
+  cursor.close()
 
   #
   # example of a database query
   #
-  cursor = g.conn.execute("SELECT firstname FROM squirrel")
-  names = []
-  for result in cursor:
-    names.append(result['firstname'])  # can also be accessed using result[0]
-  cursor.close()
+  #cursor = g.conn.execute("SELECT firstname FROM squirrel")
+  #names = []
+  #for result in cursor:
+  #  names.append(result['firstname'])  # can also be accessed using result[0]
+  #cursor.close()
 
   #
   # Flask uses Jinja templates, which is an extension to HTML where you can
@@ -136,8 +155,7 @@ def index():
   #     <div>{{n}}</div>
   #     {% endfor %}
   #
-  context = dict(data = names)
-
+  context = dict(names = names, zone_names = zone_names, entrance_names = entrance_names)
 
   #
   # render_template looks in the templates/ folder for files.
