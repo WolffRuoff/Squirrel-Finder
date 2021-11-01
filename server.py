@@ -102,19 +102,19 @@ def index():
 
   # get dropdown values
 
-  cursor = g.conn.execute("SELECT firstname FROM squirrel")
+  cursor = g.conn.execute("SELECT DISTINCT firstname FROM squirrel")
   names = []
   for result in cursor:
     names.append(result['firstname'])
   cursor.close()
 
-  cursor = g.conn.execute("SELECT zonename FROM park_zone")
+  cursor = g.conn.execute("SELECT DISTINCT zonename FROM park_zone")
   zone_names = []
   for result in cursor:
     zone_names.append(result['zonename'])
   cursor.close()
 
-  cursor = g.conn.execute("SELECT name FROM subway_entrance")
+  cursor = g.conn.execute("SELECT DISTINCT name FROM subway_entrance")
   entrance_names = []
   for result in cursor:
     entrance_names.append(result['name'])
@@ -161,7 +161,7 @@ def index():
   # render_template looks in the templates/ folder for files.
   # for example, the below file reads template/index.html
   #
-  return render_template("index.html", **context)
+  return render_template("map.html", **context)
 
 #
 # This is an example of a different path.  You can see it at:

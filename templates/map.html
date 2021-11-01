@@ -1,52 +1,129 @@
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
-  integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
-  crossorigin=""
-/>
-<style>
-  #map {
-    height: 80vh;
-    width: 40vw;
-  }
-</style>
+<html>
+  <head>
+    <!--Jquery & Bootstrap imports-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!--Select2-->
+    <link
+      href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-<!-- Make sure you put this AFTER Leaflet's CSS -->
-<script
-  src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
-  integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
-  crossorigin=""
-></script>
+    <!--Leaflet Imports-->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+      crossorigin=""
+    />
 
-<div id="map"></div>
+    <style>
+      h1 {
+        text-align: center;
+        padding-top: 2vh;
+      }
+      #map {
+        height: 75%;
+        width: 100%;
+      }
+      .dropdownsFilters {
+        display: flex;
+        text-align: center;
+        justify-content: space-around;
+      }
+      .dropdown {
+        text-align: center;
+      }
+      select {
+        width: 30vw;
+      }
+    </style>
 
-<script>
-  var mymap = L.map("map").setView([40.7831, -73.9671], 14);
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script
+      src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+      integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+      crossorigin=""
+    ></script>
 
-  L.tileLayer(
-    "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
-    {
-      attribution:
-        'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-      maxZoom: 18,
-      id: "mapbox/streets-v11",
-      tileSize: 512,
-      zoomOffset: -1,
-      accessToken:
-        "pk.eyJ1Ijoid29sZmZydW9mZiIsImEiOiJja3ZmaXUyeWRicmx2MnBtYTc5c25odmpjIn0.kAtewKXi33jO9VbeYuBPkA",
+    <title>Central Park Squirrel Finder</title>
+  </head>
+  <body>
+    <h1>Central Park Squirrel Finder</h1>
+    <form method="GET" action="/filter">
+      <div class="dropdownsFilters">
+        <div class="dropdown">
+          <select name="firstNames[]" id="firstNames" multiple="multiple">
+            {% for name in names %}
+            <option value="{{name}}">{{name}}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="dropdown">
+          <select name="parkZones[]" id="parkZones" multiple="multiple">
+            {% for zone in zone_names %}
+            <option value="{{zone}}">{{zone}}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="dropdown">
+          <select name="entranceZones[]" id="entranceZones" multiple="multiple">
+            {% for entrance in entrance_names %}
+            <option value="{{entrance}}">{{entrance}}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <br />
+      <input type="submit" value="Filter" />
+    </form>
+    <div id="map"></div>
+  </body>
+
+  <script>
+    var mymap = L.map("map").setView([40.7831, -73.9671], 14);
+
+    L.tileLayer(
+      "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
+      {
+        attribution:
+          'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        maxZoom: 18,
+        id: "mapbox/streets-v11",
+        tileSize: 512,
+        zoomOffset: -1,
+        accessToken:
+          "pk.eyJ1Ijoid29sZmZydW9mZiIsImEiOiJja3ZmaXUyeWRicmx2MnBtYTc5c25odmpjIn0.kAtewKXi33jO9VbeYuBPkA",
+      }
+    ).addTo(mymap);
+
+    // Popup coords where clicking
+    var popup = L.popup();
+    function onMapClick(e) {
+      popup
+        .setLatLng(e.latlng)
+        .setContent("You clicked the map at " + e.latlng.toString())
+        .openOn(mymap);
     }
-  ).addTo(mymap);
+    mymap.on("click", onMapClick);
 
-
-  // Popup coords where clicking
-  var popup = L.popup();
-  function onMapClick(e) {
-    popup
-      .setLatLng(e.latlng)
-      .setContent("You clicked the map at " + e.latlng.toString())
-      .openOn(mymap);
-  }
-  mymap.on("click", onMapClick);
-
-  
-</script>
+    //Jquery for dropdowns
+    $(document).ready(function () {
+      $("#firstNames").select2({
+        placeholder: "Filter By Name",
+        closeOnSelect: false,
+        width: 'resolve'
+      });
+      $("#parkZones").select2({
+        placeholder: "Filter by Park Zones",
+        closeOnSelect: false,
+        width: 'resolve'
+      });
+      $("#entranceZones").select2({
+        placeholder: "Filter By Nearest Subway Entrances",
+        closeOnSelect: false,
+        width: 'resolve'
+      });
+    });
+  </script>
+</html>
