@@ -14,6 +14,8 @@ A debugger such as "pdb" may be helpful for debugging.
 Read about it online.
 """
 import os
+import json
+import datetime
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response
@@ -110,11 +112,21 @@ def index():
                             "JOIN squirrel s ON s.squirrelid=spot.squirrelid " +
                             "JOIN park_zone park ON park.zoneid=spot.zoneid " +
                             "LEFT JOIN made_sound ON made_sound.squirrelid=s.squirrelid " +
-                            "LEFT JOIN squirrel_sound sound ON made_sound.soundid=sound.soundid")
-    spottings= []
+                            "LEFT JOIN squirrel_sound sound ON made_sound.soundid=sound.soundid " +
+                            "ORDER BY park.zonename")
+    spottings = []
     for result in cursor:
-        spottings.append(result)
+        spottings.append({'squirrelid': result[0], 'dateofspotting': result[1].isoformat(),
+                         'location': result[2], 'color': result[3], 'age': result[4], 'firstname': result[5], 'zone': result[6], 'sound': result[7]})
     cursor.close()
+    # Sanitizing
+    for spotting in spottings:
+      if spotting["color"] is None:
+        spotting["color"] = "Unknown"
+      if spotting["age"] is None:
+        spotting["age"] = "Unknown"
+      if spotting["sound"] is None:
+        spotting["sound"] = "None"
 
     cursor = g.conn.execute("SELECT DISTINCT firstname FROM squirrel")
     names = []
@@ -169,6 +181,7 @@ def index():
     #     <div>{{n}}</div>
     #     {% endfor %}
     #
+
     context = dict(names=names, zone_names=zone_names,
                    entrance_names=entrance_names, spottings=spottings)
 

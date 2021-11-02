@@ -12,9 +12,9 @@
     <!--Leaflet Imports-->
     <link
       rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
-      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
-      crossorigin=""
+      href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css"
+      integrity="sha384-BF7C732iE6WuqJMhUnTNJJLVvW1TIP87P2nMDY7aN2j2EJFWIaqK89j3WlirhFZU"
+      crossorigin="anonymous"
     />
 
     <style>
@@ -42,9 +42,22 @@
 
     <!-- Make sure you put this AFTER Leaflet's CSS -->
     <script
-      src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
-      integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
-      crossorigin=""
+      src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"
+      integrity="sha384-/I247jMyT/djAL4ijcbNXfX+PA8OZmkwzUr6Gotpgjz1Rxti1ZECG9Ne0Dj1pXrx"
+      crossorigin="anonymous"
+    ></script>
+
+    <!--Market Cluster Groups-->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css"
+      integrity="sha384-5kMSQJ6S4Qj5i09mtMNrWpSi8iXw230pKU76xTmrpezGnNJQzj0NzXjQLLg+jE7k"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"
+      integrity="sha384-RLIyj5q1b5XJTn0tqUhucRZe40nFTocRP91R/NkRJHwAe4XxnTV77FXy/vGLiec2"
+      crossorigin="anonymous"
     ></script>
 
     <title>Central Park Squirrel Finder</title>
@@ -79,6 +92,11 @@
       <input type="submit" value="Filter" />
     </form>
     <div id="map"></div>
+    <meta
+      id="my-data"
+      data-name="{{spottings | safe}}"
+      data-other="{{other}}"
+    />
   </body>
 
   <script>
@@ -108,23 +126,55 @@
     }
     mymap.on("click", onMapClick);
 
+    //Jquery populate map with spottings
+    function populate() {
+      var spottings = {{spottings|safe}};
+
+      var markers = L.markerClusterGroup();
+      spottings.forEach(function(spotting) {
+        var location = spotting["location"].split(/[(,),]/);
+        markers.addLayer(L.marker([location[1], location[2]])
+          .bindPopup(
+            `Name: ${spotting["firstname"]} <br/>
+            Zone: ${spotting["zone"]} <br/>
+            Color: ${spotting["color"]} <br/>
+            Age: ${spotting["age"]} <br/>
+            Sound Made: ${spotting["sound"]}`
+          ));
+      mymap.addLayer(markers);
+      });
+      /*
+      spottings.forEach(function(spotting) {
+        var location = spotting["location"].split(/[(,),]/);
+        L.marker([location[1], location[2]])
+          .addTo(mymap)
+          .bindPopup(
+            `Name: ${spotting["firstname"]} <br/>
+            Zone: ${spotting["zone"]} <br/>
+            Color: ${spotting["color"]} <br/>
+            Age: ${spotting["age"]} <br/>
+            Sound Made: ${spotting["sound"]}`
+          );
+      });*/
+    };
     //Jquery for dropdowns
     $(document).ready(function () {
       $("#firstNames").select2({
         placeholder: "Filter By Name",
         closeOnSelect: false,
-        width: 'resolve'
+        width: "resolve",
       });
       $("#parkZones").select2({
         placeholder: "Filter by Park Zones",
         closeOnSelect: false,
-        width: 'resolve'
+        width: "resolve",
       });
       $("#entranceZones").select2({
         placeholder: "Filter By Nearest Subway Entrances",
         closeOnSelect: false,
-        width: 'resolve'
+        width: "resolve",
       });
+      populate();
     });
   </script>
 </html>
