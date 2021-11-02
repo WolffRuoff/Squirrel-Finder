@@ -104,16 +104,42 @@ def index():
 
     # DEBUG: this is debugging code to see what request looks like
     print(request.args)
+    names_args = request.args.getlist('firstNames[]')
+    park_zone_args = request.args.getlist('parkZones[]')
+    subway_args = request.args.getlist('entranceZones[]')
 
-    # get dropdown values
+    query = ("SELECT spot.zoneid, spot.dateofspotting, spot.location, s.color, s.age, s.firstname, park.zonename, sound.name " +
+            "FROM spotted_at spot " +
+            "JOIN squirrel s ON s.squirrelid=spot.squirrelid " +
+            "JOIN park_zone park ON park.zoneid=spot.zoneid " +
+            "JOIN subway_entrance subway ON subway.entranceid=spot.entranceid "
+            "LEFT JOIN made_sound ON made_sound.squirrelid=s.squirrelid " +
+            "LEFT JOIN squirrel_sound sound ON made_sound.soundid=sound.soundid ")
 
-    cursor = g.conn.execute("SELECT spot.zoneid, spot.dateofspotting, spot.location, s.color, s.age, s.firstname, park.zonename, sound.name " +
-                            "FROM spotted_at spot " +
-                            "JOIN squirrel s ON s.squirrelid=spot.squirrelid " +
-                            "JOIN park_zone park ON park.zoneid=spot.zoneid " +
-                            "LEFT JOIN made_sound ON made_sound.squirrelid=s.squirrelid " +
-                            "LEFT JOIN squirrel_sound sound ON made_sound.soundid=sound.soundid " +
-                            "ORDER BY park.zonename")
+    query += "WHERE "
+    if names_args:
+      query += "s.firstname IN (" + ', '.join(["'" + name + "'" for name in names_args]) + ") AND "
+    if park_zone_args:
+      query += "park.zonename IN (" + ', '.join(["'" + zone + "'" for zone in park_zone_args]) + ") AND "
+    if subway_args:
+      query += "subway.name IN (" + ', '.join(["'" + subway + "'" for subway in subway_args]) + ") AND "
+
+    if query[-4:] == 'AND ':
+      query = query[:-4]
+    else:
+      query = query[:-6]
+
+    query += "ORDER BY park.zonename"
+
+    cursor = g.conn.execute(query)
+    
+    # cursor = g.conn.execute("SELECT spot.zoneid, spot.dateofspotting, spot.location, s.color, s.age, s.firstname, park.zonename, sound.name " +
+    #                         "FROM spotted_at spot " +
+    #                         "JOIN squirrel s ON s.squirrelid=spot.squirrelid " +
+    #                         "JOIN park_zone park ON park.zoneid=spot.zoneid " +
+    #                         "LEFT JOIN made_sound ON made_sound.squirrelid=s.squirrelid " +
+    #                         "LEFT JOIN squirrel_sound sound ON made_sound.soundid=sound.soundid " +
+    #                         "ORDER BY park.zonename")
     spottings = []
     for result in cursor:
         spottings.append({'squirrelid': result[0], 'dateofspotting': result[1].isoformat(),
@@ -127,6 +153,8 @@ def index():
         spotting["age"] = "Unknown"
       if spotting["sound"] is None:
         spotting["sound"] = "None"
+
+    # get dropdown values
 
     cursor = g.conn.execute("SELECT DISTINCT firstname FROM squirrel")
     names = []
@@ -182,7 +210,7 @@ def index():
     #     {% endfor %}
     #
 
-    context = dict(names=names, zone_names=zone_names,
+    context = dict(names=names,zone_names=zone_names,
                    entrance_names=entrance_names, spottings=spottings)
 
     #
