@@ -40,16 +40,6 @@ DATABASEURI = "postgresql://er3074:squirrels@35.196.73.133/proj1part2"
 # This line creates a database engine that knows how to connect to the URI above.
 engine = create_engine(DATABASEURI)
 
-# Example of running queries in your database
-# Note that this will probably not work if you already have a table named 'test' in your database, containing meaningful data. This is only an example showing you how to run queries in your database using SQLAlchemy.
-
-'''engine.execute("""CREATE TABLE IF NOT EXISTS test (
-  id serial,
-  name text
-);""")
-engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")'''
-
-
 @app.before_request
 def before_request():
     """
@@ -118,11 +108,11 @@ def index():
 
     query += "WHERE "
     if names_args:
-      query += "s.firstname IN (" + ', '.join(["'" + name + "'" for name in names_args]) + ") AND "
+      query += "s.firstname IN (" + ', '.join(["'" + name.replace("'", "''") + "'" for name in names_args]) + ") AND "
     if park_zone_args:
-      query += "park.zonename IN (" + ', '.join(["'" + zone + "'" for zone in park_zone_args]) + ") AND "
+      query += "park.zonename IN (" + ', '.join(["'" + zone.replace("'", "''") + "'" for zone in park_zone_args]) + ") AND "
     if subway_args:
-      query += "subway.name IN (" + ', '.join(["'" + subway + "'" for subway in subway_args]) + ") AND "
+      query += "subway.name IN (" + ', '.join(["'" + subway.replace("'", "''") + "'" for subway in subway_args]) + ") AND "
 
     if query[-4:] == 'AND ':
       query = query[:-4]
@@ -168,7 +158,10 @@ def index():
         zone_names.append(result['zonename'])
     cursor.close()
 
-    cursor = g.conn.execute("SELECT DISTINCT name FROM subway_entrance")
+    cursor = g.conn.execute("SELECT DISTINCT subway.name " + 
+                            "FROM spotted_at spot " + 
+                            "JOIN subway_entrance subway ON subway.entranceid=spot.entranceid " + 
+                            "ORDER BY subway.name")
     entrance_names = []
     for result in cursor:
         entrance_names.append(result['name'])
