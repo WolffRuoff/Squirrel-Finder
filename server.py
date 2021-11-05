@@ -99,7 +99,7 @@ def index():
     subway_args = request.args.getlist('entranceZones[]')
     selected_dropdowns = names_args + park_zone_args + subway_args
 
-    query = ("SELECT spot.zoneid, spot.dateofspotting, spot.location, s.color, s.age, s.firstname, park.zonename, sound.name " +
+    query = ("SELECT spot.zoneid, spot.dateofspotting, spot.location, s.color, s.age, s.firstname, park.zonename, sound.name, subway.name, subway.line " +
             "FROM spotted_at spot " +
             "JOIN squirrel s ON s.squirrelid=spot.squirrelid " +
             "JOIN park_zone park ON park.zoneid=spot.zoneid " +
@@ -133,8 +133,9 @@ def index():
     #                         "ORDER BY park.zonename")
     spottings = []
     for result in cursor:
+        subway = result[8] + " (Lines: " + result[9] + ")"
         spottings.append({'squirrelid': result[0], 'dateofspotting': result[1].isoformat(),
-                         'location': result[2], 'color': result[3], 'age': result[4], 'firstname': result[5], 'zone': result[6], 'sound': result[7]})
+                         'location': result[2], 'color': result[3], 'age': result[4], 'firstname': result[5], 'zone': result[6], 'sound': result[7], 'subway': subway})
     cursor.close()
     # Sanitizing
     for spotting in spottings:

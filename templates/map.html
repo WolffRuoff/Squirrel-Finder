@@ -28,13 +28,10 @@
       }
       .dropdownsFilters {
         display: flex;
-        text-align: center;
         justify-content: space-around;
         flex-wrap: wrap;
       }
-      .dropdown {
-        text-align: center;
-      }
+
       select {
         width: 30vw;
       }
@@ -150,6 +147,7 @@
           .bindPopup(
             `Name: ${spotting["firstname"]} <br/>
             Zone: ${spotting["zone"]} <br/>
+            Nearest Subway: ${spotting["subway"]} <br />
             Color: ${spotting["color"]} <br/>
             Age: ${spotting["age"]} <br/>
             Sound Made: ${spotting["sound"]}`
