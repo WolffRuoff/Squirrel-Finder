@@ -97,6 +97,7 @@ def index():
     names_args = request.args.getlist('firstNames[]')
     park_zone_args = request.args.getlist('parkZones[]')
     subway_args = request.args.getlist('entranceZones[]')
+    selected_dropdowns = names_args + park_zone_args + subway_args
 
     query = ("SELECT spot.zoneid, spot.dateofspotting, spot.location, s.color, s.age, s.firstname, park.zonename, sound.name " +
             "FROM spotted_at spot " +
@@ -167,6 +168,13 @@ def index():
         entrance_names.append(result['name'])
     cursor.close()
 
+    cursor = g.conn.execute("SELECT name, sound, meaning FROM squirrel_sound")
+    squirrel_sounds = []
+    for result in cursor:
+        squirrel_sounds.append({'name': result[0], 'sound': result[1], 'meaning': result[2]})
+    cursor.close()
+
+    print(squirrel_sounds)
     #
     # example of a database query
     #
@@ -204,7 +212,7 @@ def index():
     #
 
     context = dict(names=names,zone_names=zone_names,
-                   entrance_names=entrance_names, spottings=spottings)
+                   entrance_names=entrance_names, spottings=spottings, selected_dropdowns=selected_dropdowns, squirrel_sounds=squirrel_sounds)
 
     #
     # render_template looks in the templates/ folder for files.

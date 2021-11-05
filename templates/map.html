@@ -87,16 +87,29 @@
             {% endfor %}
           </select>
         </div>
+        <!--
+        <div class="dropdown">
+          <select name="weather[]" id="weather" multiple="multiple">
+            {% for weath in weather %}
+            <option value="{{weath}}">{{weath}}</option>
+            {% endfor %}
+          </select>
+        </div>-->
       </div>
       <br />
       <input type="submit" value="Filter" />
     </form>
     <div id="map"></div>
-    <meta
-      id="my-data"
-      data-name="{{spottings | safe}}"
-      data-other="{{other}}"
-    />
+    <div>
+      <h2>Squirrel Sounds</h2>
+      {% for sound in squirrel_sounds %}
+      <h4>{{sound.name}}</h4>
+      <audio controls>
+        <source src={{sound.sound}} type="audio/mpeg" />
+      </audio>
+      <p>{{sound.meaning}}</p>
+      {% endfor %}
+    </div>
   </body>
 
   <script>
@@ -143,37 +156,36 @@
           ));
       mymap.addLayer(markers);
       });
-      /*
-      spottings.forEach(function(spotting) {
-        var location = spotting["location"].split(/[(,),]/);
-        L.marker([location[1], location[2]])
-          .addTo(mymap)
-          .bindPopup(
-            `Name: ${spotting["firstname"]} <br/>
-            Zone: ${spotting["zone"]} <br/>
-            Color: ${spotting["color"]} <br/>
-            Age: ${spotting["age"]} <br/>
-            Sound Made: ${spotting["sound"]}`
-          );
-      });*/
     };
+
     //Jquery for dropdowns
     $(document).ready(function () {
+      var stored_vals = {{selected_dropdowns|safe}};
+
       $("#firstNames").select2({
         placeholder: "Filter By Name",
         closeOnSelect: false,
         width: "resolve",
       });
+      $("#firstNames").val(stored_vals);
+      $("#firstNames").trigger('change');
+
       $("#parkZones").select2({
         placeholder: "Filter by Park Zones",
         closeOnSelect: false,
         width: "resolve",
       });
+      $("#parkZones").val(stored_vals);
+      $("#parkZones").trigger('change');
+
       $("#entranceZones").select2({
         placeholder: "Filter By Nearest Subway Entrances",
         closeOnSelect: false,
         width: "resolve",
       });
+      $("#entranceZones").val(stored_vals);
+      $("#entranceZones").trigger('change');
+
       populate();
     });
   </script>
