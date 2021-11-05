@@ -91,6 +91,13 @@
             <option value="{{weath}}">{{weath}}</option>
             {% endfor %}
           </select>
+        </div>
+        <div class="dropdown">
+          <select name="squirrelSounds[]" id="squirrelSounds" multiple="multiple">
+            {% for squirrelSound in squirrel_sounds %}
+            <option value="{{squirrelSound.name}}">{{squirrelSound.name}}</option>
+            {% endfor %}
+          </select>
         </div>-->
       </div>
       <br />
@@ -102,7 +109,7 @@
       {% for sound in squirrel_sounds %}
       <h4>{{sound.name}}</h4>
       <audio controls>
-        <source src={{sound.sound}} type="audio/mpeg" />
+        <source src="{{sound.sound}}" type="audio/mpeg" />
       </audio>
       <p>{{sound.meaning}}</p>
       {% endfor %}
@@ -184,6 +191,17 @@
       $("#entranceZones").val(stored_vals);
       $("#entranceZones").trigger('change');
 
+      /*
+      $("#squirrelSounds").select2({
+        placeholder: "Filter By Sound Made",
+        closeOnSelect: false,
+        width: "resolve",
+      });
+      $("#squirrelSounds").val(stored_vals);
+      $("#squirrelSounds").append(new Option('None', 4, false, false));
+      $("#squirrelSounds").trigger('change');
+      */
+     
       populate();
     });
   </script>
