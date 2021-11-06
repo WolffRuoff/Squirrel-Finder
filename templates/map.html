@@ -157,14 +157,41 @@
     }
     mymap.on("click", onMapClick);
 
-    //Jquery populate map with spottings
+    //Jquery populate map with concessions and spottings
     function populate() {
-      var spottings = {{spottings|safe}};
+      // Plot the concessions
+      var concessions = {{concessions|safe}};
+      /*
+      var concession_markers = L.markerClusterGroup();
+      concessions.forEach(function(conc) {
+        var location = conc["location"].split(/[(,),]/);
+        concession_markers.addLayer(L.marker([location[1], location[2]])
+          .bindPopup(
+            `${conc["name"]} <br/>
+            Type: ${conc["type"]}`
+          ));
+      mymap.addLayer(concession_markers);
+      */
+      var burgerIcon = L.icon({
+        iconUrl: 'https://dl.dropbox.com/s/cuswpktrbj5a3ti/hamburger-icon.png',
+        iconSize: [15,15]
+      });
+      concessions.forEach(function(conc) {
+        var location = conc["location"].split(/[(,),]/);
+        marker = L.marker([location[1], location[2]], {icon: burgerIcon})
+          .bindPopup(
+            `${conc["name"]} <br/>
+            Type: ${conc["type"]}`
+          );
+        mymap.addLayer(marker);
+      });
 
-      var markers = L.markerClusterGroup();
+      // Plot the spottings
+      var spottings = {{spottings|safe}};
+      var squirls = L.markerClusterGroup();
       spottings.forEach(function(spotting) {
         var location = spotting["location"].split(/[(,),]/);
-        markers.addLayer(L.marker([location[1], location[2]])
+        squirls.addLayer(L.marker([location[1], location[2]])
           .bindPopup(
             `Name: ${spotting["firstname"]} <br/>
             Zone: ${spotting["zone"]} <br/>
@@ -173,8 +200,9 @@
             Age: ${spotting["age"]} <br/>
             Sound Made: ${spotting["sound"]}`
           ));
-      mymap.addLayer(markers);
+      mymap.addLayer(squirls);
       });
+
     };
 
     //Jquery for dropdowns

@@ -40,6 +40,7 @@ DATABASEURI = "postgresql://er3074:squirrels@35.196.73.133/proj1part2"
 # This line creates a database engine that knows how to connect to the URI above.
 engine = create_engine(DATABASEURI)
 
+
 @app.before_request
 def before_request():
     """
@@ -99,45 +100,44 @@ def index():
     subway_args = request.args.getlist('entranceZones[]')
     sounds_args = request.args.getlist('squirrelSounds[]')
     weather_args = request.args.getlist('weather[]')
-    selected_dropdowns = {'names': names_args, 'parks': park_zone_args, 'subways': subway_args, 'sounds': sounds_args, 'weather': weather_args}
+    selected_dropdowns = {'names': names_args, 'parks': park_zone_args,
+                          'subways': subway_args, 'sounds': sounds_args, 'weather': weather_args}
 
     query = ("SELECT spot.zoneid, spot.dateofspotting, spot.location, s.color, s.age, s.firstname, park.zonename, sound.name, subway.name, subway.line " +
-            "FROM spotted_at spot " +
-            "JOIN squirrel s ON s.squirrelid=spot.squirrelid " +
-            "JOIN park_zone park ON park.zoneid=spot.zoneid " +
-            "JOIN subway_entrance subway ON subway.entranceid=spot.entranceid "
-            "LEFT JOIN made_sound ON made_sound.squirrelid=s.squirrelid " +
-            "LEFT JOIN squirrel_sound sound ON made_sound.soundid=sound.soundid "
-            "LEFT JOIN weather_report w ON w.date=spot.dateofspotting ")
+             "FROM spotted_at spot " +
+             "JOIN squirrel s ON s.squirrelid=spot.squirrelid " +
+             "JOIN park_zone park ON park.zoneid=spot.zoneid " +
+             "JOIN subway_entrance subway ON subway.entranceid=spot.entranceid "
+             "LEFT JOIN made_sound ON made_sound.squirrelid=s.squirrelid " +
+             "LEFT JOIN squirrel_sound sound ON made_sound.soundid=sound.soundid "
+             "LEFT JOIN weather_report w ON w.date=spot.dateofspotting ")
 
     query += "WHERE "
     if names_args:
-      query += "s.firstname IN (" + ', '.join(["'" + name.replace("'", "''") + "'" for name in names_args]) + ") AND "
+        query += "s.firstname IN (" + ', '.join(
+            ["'" + name.replace("'", "''") + "'" for name in names_args]) + ") AND "
     if park_zone_args:
-      query += "park.zonename IN (" + ', '.join(["'" + zone.replace("'", "''") + "'" for zone in park_zone_args]) + ") AND "
+        query += "park.zonename IN (" + ', '.join(
+            ["'" + zone.replace("'", "''") + "'" for zone in park_zone_args]) + ") AND "
     if subway_args:
-      query += "subway.name IN (" + ', '.join(["'" + subway.replace("'", "''") + "'" for subway in subway_args]) + ") AND "
+        query += "subway.name IN (" + ', '.join(
+            ["'" + subway.replace("'", "''") + "'" for subway in subway_args]) + ") AND "
     if sounds_args:
-      query += "sound.name IN (" + ','.join(["'" + sound + "'" for sound in sounds_args]) + ") AND "
+        query += "sound.name IN (" + ','.join(
+            ["'" + sound + "'" for sound in sounds_args]) + ") AND "
     if weather_args:
-      query += "w.weather IN (" + ','.join(["'" + weather + "'" for weather in weather_args]) + ") AND "
+        query += "w.weather IN (" + ','.join(
+            ["'" + weather + "'" for weather in weather_args]) + ") AND "
 
     if query[-4:] == 'AND ':
-      query = query[:-4]
+        query = query[:-4]
     else:
-      query = query[:-6]
+        query = query[:-6]
 
     query += "ORDER BY park.zonename"
 
     cursor = g.conn.execute(query)
-    
-    # cursor = g.conn.execute("SELECT spot.zoneid, spot.dateofspotting, spot.location, s.color, s.age, s.firstname, park.zonename, sound.name " +
-    #                         "FROM spotted_at spot " +
-    #                         "JOIN squirrel s ON s.squirrelid=spot.squirrelid " +
-    #                         "JOIN park_zone park ON park.zoneid=spot.zoneid " +
-    #                         "LEFT JOIN made_sound ON made_sound.squirrelid=s.squirrelid " +
-    #                         "LEFT JOIN squirrel_sound sound ON made_sound.soundid=sound.soundid " +
-    #                         "ORDER BY park.zonename")
+
     spottings = []
     for result in cursor:
         subway = result[8] + " (Lines: " + result[9] + ")"
@@ -146,14 +146,23 @@ def index():
     cursor.close()
     # Sanitizing
     for spotting in spottings:
-      if spotting["color"] is None:
-        spotting["color"] = "Unknown"
-      if spotting["age"] is None:
-        spotting["age"] = "Unknown"
-      if spotting["sound"] is None:
-        spotting["sound"] = "None"
+        if spotting["color"] is None:
+            spotting["color"] = "Unknown"
+        if spotting["age"] is None:
+            spotting["age"] = "Unknown"
+        if spotting["sound"] is None:
+            spotting["sound"] = "None"
 
-    # get dropdown values
+    # Get the concession details
+    cursor = g.conn.execute("SELECT c.name, c.location, c.type " +
+                            "FROM concession c " +
+                            "JOIN park_zone park ON park.zoneid=c.zoneid")
+    concessions = []
+    for result in cursor:
+        concessions.append({'name': result[0], 'location': result[1], 'type': result[2]})
+    cursor.close()
+
+    # Get dropdown values
 
     cursor = g.conn.execute("SELECT DISTINCT firstname FROM squirrel")
     names = []
@@ -170,9 +179,9 @@ def index():
     sounds = ['kuk', 'quaa', 'moan', 'None']
     weather = ['Snowy', 'Rainy', 'Sunny']
 
-    cursor = g.conn.execute("SELECT DISTINCT subway.name " + 
-                            "FROM spotted_at spot " + 
-                            "JOIN subway_entrance subway ON subway.entranceid=spot.entranceid " + 
+    cursor = g.conn.execute("SELECT DISTINCT subway.name " +
+                            "FROM spotted_at spot " +
+                            "JOIN subway_entrance subway ON subway.entranceid=spot.entranceid " +
                             "ORDER BY subway.name")
     entrance_names = []
     for result in cursor:
@@ -182,7 +191,8 @@ def index():
     cursor = g.conn.execute("SELECT name, sound, meaning FROM squirrel_sound")
     squirrel_sounds = []
     for result in cursor:
-        squirrel_sounds.append({'name': result[0], 'sound': result[1], 'meaning': result[2]})
+        squirrel_sounds.append(
+            {'name': result[0], 'sound': result[1], 'meaning': result[2]})
     cursor.close()
 
     #
@@ -223,12 +233,13 @@ def index():
 
     context = dict(names=names,
                    zone_names=zone_names,
-                   entrance_names=entrance_names, 
-                   spottings=spottings, 
-                   selected_dropdowns=selected_dropdowns, 
+                   entrance_names=entrance_names,
+                   spottings=spottings,
+                   selected_dropdowns=selected_dropdowns,
                    squirrel_sounds=squirrel_sounds,
                    sounds=sounds,
-                   weather=weather)
+                   weather=weather,
+                   concessions=concessions)
 
     #
     # render_template looks in the templates/ folder for files.
