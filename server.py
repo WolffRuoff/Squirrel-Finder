@@ -118,7 +118,10 @@ def index():
     if subway_args:
       query += "subway.name IN (" + ', '.join(["'" + subway.replace("'", "''") + "'" for subway in subway_args]) + ") AND "
     if sounds_args:
-      query += "sound.name IN (" + ','.join(["'" + sound + "'" for sound in sounds_args]) + ") AND "
+      if 'None' in sounds_args:
+        query += "(s.squirrelid NOT IN (SELECT squirrelid FROM made_sound) OR sound.name IN (" + ','.join(["'" + sound + "'" for sound in sounds_args]) + ")) AND "
+      else:
+        query += "sound.name IN (" + ','.join(["'" + sound + "'" for sound in sounds_args]) + ") AND "
     if weather_args:
       query += "w.weather IN (" + ','.join(["'" + weather + "'" for weather in weather_args]) + ") AND "
 
@@ -127,7 +130,8 @@ def index():
     else:
       query = query[:-6]
 
-    query += "ORDER BY park.zonename"
+    query += "ORDER BY park.zonename "
+
 
     cursor = g.conn.execute(query)
     
