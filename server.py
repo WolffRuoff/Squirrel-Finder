@@ -97,6 +97,8 @@ def index():
     names_args = request.args.getlist('firstNames[]')
     park_zone_args = request.args.getlist('parkZones[]')
     subway_args = request.args.getlist('entranceZones[]')
+    sounds_args = request.args.getlist('sounds[]')
+    weather_args = request.args.getlist('weather[]')
     selected_dropdowns = names_args + park_zone_args + subway_args
 
     query = ("SELECT spot.zoneid, spot.dateofspotting, spot.location, s.color, s.age, s.firstname, park.zonename, sound.name, subway.name, subway.line " +
@@ -105,7 +107,8 @@ def index():
             "JOIN park_zone park ON park.zoneid=spot.zoneid " +
             "JOIN subway_entrance subway ON subway.entranceid=spot.entranceid "
             "LEFT JOIN made_sound ON made_sound.squirrelid=s.squirrelid " +
-            "LEFT JOIN squirrel_sound sound ON made_sound.soundid=sound.soundid ")
+            "LEFT JOIN squirrel_sound sound ON made_sound.soundid=sound.soundid "
+            "LEFT JOIN weather_report w ON w.date=spot.dateofspotting ")
 
     query += "WHERE "
     if names_args:
@@ -114,6 +117,10 @@ def index():
       query += "park.zonename IN (" + ', '.join(["'" + zone.replace("'", "''") + "'" for zone in park_zone_args]) + ") AND "
     if subway_args:
       query += "subway.name IN (" + ', '.join(["'" + subway.replace("'", "''") + "'" for subway in subway_args]) + ") AND "
+    if sounds_args:
+      query += "sound.name IN (" + ','.join(["'" + sound + "'" for sound in sounds_args]) + ") AND "
+    if weather_args:
+      query += "w.weather IN (" + ','.join(["'" + weather + "'" for weather in weather_args]) + ") AND "
 
     if query[-4:] == 'AND ':
       query = query[:-4]
@@ -160,6 +167,9 @@ def index():
         zone_names.append(result['zonename'])
     cursor.close()
 
+    sounds = ['kuk', 'quaa', 'moan']
+    weather = ['Snowy', 'Rainy', 'Sunny']
+
     cursor = g.conn.execute("SELECT DISTINCT subway.name " + 
                             "FROM spotted_at spot " + 
                             "JOIN subway_entrance subway ON subway.entranceid=spot.entranceid " + 
@@ -175,7 +185,6 @@ def index():
         squirrel_sounds.append({'name': result[0], 'sound': result[1], 'meaning': result[2]})
     cursor.close()
 
-    print(squirrel_sounds)
     #
     # example of a database query
     #
@@ -212,8 +221,14 @@ def index():
     #     {% endfor %}
     #
 
-    context = dict(names=names,zone_names=zone_names,
-                   entrance_names=entrance_names, spottings=spottings, selected_dropdowns=selected_dropdowns, squirrel_sounds=squirrel_sounds)
+    context = dict(names=names,
+                   zone_names=zone_names,
+                   entrance_names=entrance_names, 
+                   spottings=spottings, 
+                   selected_dropdowns=selected_dropdowns, 
+                   squirrel_sounds=squirrel_sounds,
+                   sounds=sounds,
+                   weather=weather)
 
     #
     # render_template looks in the templates/ folder for files.
