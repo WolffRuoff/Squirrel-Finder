@@ -1,2 +1,4 @@
 # Squirrel-Finder
-This repo is a web application that maps all of the squirrels in Central Park
+For our Intro to Databases class at Columbia University, @marv-chan and @wolffruoff created a Squirrel Finder Application currently based in Central Park. The purpose of our application is to allow avid squirrel fans to learn about squirrels in Central Park by examining the last sighting of their favorite squirrels, observe overall patterns among squirrel appearences, and view notable features within the proximity of said sighting. 
+
+The demo for the Central Park Squirrel Finder can be viewed at _____. In this demo, users have access to an interactive map where they can easily filter to view squirrel sightings by the squirrel's name, park zone, weather, nearest subway station/train line, and noises made. A majority of our data is sourced from cityofnewyork.us, an openly available data site run by the city of New York. The exceptions to this are our weather data that is sourced from The National Centers For Environmental Information and the squirrel names which we found at data.world.
