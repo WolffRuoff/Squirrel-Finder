@@ -97,9 +97,9 @@ def index():
     names_args = request.args.getlist('firstNames[]')
     park_zone_args = request.args.getlist('parkZones[]')
     subway_args = request.args.getlist('entranceZones[]')
-    sounds_args = request.args.getlist('sounds[]')
+    sounds_args = request.args.getlist('squirrelSounds[]')
     weather_args = request.args.getlist('weather[]')
-    selected_dropdowns = names_args + park_zone_args + subway_args
+    selected_dropdowns = {'names': names_args, 'parks': park_zone_args, 'subways': subway_args, 'sounds': sounds_args, 'weather': weather_args}
 
     query = ("SELECT spot.zoneid, spot.dateofspotting, spot.location, s.color, s.age, s.firstname, park.zonename, sound.name, subway.name, subway.line " +
             "FROM spotted_at spot " +
@@ -167,7 +167,7 @@ def index():
         zone_names.append(result['zonename'])
     cursor.close()
 
-    sounds = ['kuk', 'quaa', 'moan']
+    sounds = ['kuk', 'quaa', 'moan', 'None']
     weather = ['Snowy', 'Rainy', 'Sunny']
 
     cursor = g.conn.execute("SELECT DISTINCT subway.name " + 

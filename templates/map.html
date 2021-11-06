@@ -32,7 +32,21 @@
         flex-wrap: wrap;
       }
 
-      select {
+      .dropdown {
+        margin-bottom: 10px;
+      }
+
+      .submit-button-span {
+        margin-bottom: 10px;
+      }
+      .submit-button {
+        height: 100%;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        font-size: 100%;
+      }
+
+      select, input {
         width: 30vw;
       }
     </style>
@@ -84,7 +98,6 @@
             {% endfor %}
           </select>
         </div>
-        <!--
         <div class="dropdown">
           <select name="weather[]" id="weather" multiple="multiple">
             {% for weath in weather %}
@@ -94,14 +107,15 @@
         </div>
         <div class="dropdown">
           <select name="squirrelSounds[]" id="squirrelSounds" multiple="multiple">
-            {% for squirrelSound in squirrel_sounds %}
-            <option value="{{squirrelSound.name}}">{{squirrelSound.name}}</option>
+            {% for squirrelSound in sounds %}
+            <option value="{{squirrelSound}}">{{squirrelSound}}</option>
             {% endfor %}
           </select>
-        </div>-->
+        </div>
+        <div class="submit-button-span">
+          <input class="submit-button" type="submit" value="Filter The Squirrels!" />
+        </div>
       </div>
-      <br />
-      <input type="submit" value="Filter" />
     </form>
     <div id="map"></div>
     <div>
@@ -166,13 +180,13 @@
     //Jquery for dropdowns
     $(document).ready(function () {
       var stored_vals = {{selected_dropdowns|safe}};
-
+      console.log(stored_vals)
       $("#firstNames").select2({
         placeholder: "Filter By Name",
         closeOnSelect: false,
         width: "resolve",
       });
-      $("#firstNames").val(stored_vals);
+      $("#firstNames").val(stored_vals['names']);
       $("#firstNames").trigger('change');
 
       $("#parkZones").select2({
@@ -180,7 +194,7 @@
         closeOnSelect: false,
         width: "resolve",
       });
-      $("#parkZones").val(stored_vals);
+      $("#parkZones").val(stored_vals['parks']);
       $("#parkZones").trigger('change');
 
       $("#entranceZones").select2({
@@ -188,19 +202,24 @@
         closeOnSelect: false,
         width: "resolve",
       });
-      $("#entranceZones").val(stored_vals);
+      $("#entranceZones").val(stored_vals['subways']);
       $("#entranceZones").trigger('change');
 
-      /*
+      $("#weather").select2({
+        placeholder: "Filter By The Weather",
+        closeOnSelect: false,
+        width: "resolve",
+      });
+      $("#weather").val(stored_vals['weather']);
+      $("#weather").trigger('change');
+
       $("#squirrelSounds").select2({
         placeholder: "Filter By Sound Made",
         closeOnSelect: false,
         width: "resolve",
       });
-      $("#squirrelSounds").val(stored_vals);
-      $("#squirrelSounds").append(new Option('None', 4, false, false));
+      $("#squirrelSounds").val(stored_vals['sounds']);
       $("#squirrelSounds").trigger('change');
-      */
      
       populate();
     });
