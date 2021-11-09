@@ -88,8 +88,8 @@ def index():
     subway_args = request.args.getlist('entranceZones[]')
     sounds_args = request.args.getlist('squirrelSounds[]')
     weather_args = request.args.getlist('weather[]')
-    selected_dropdowns = {'names': names_args, 'parks': park_zone_args,
-                          'subways': subway_args, 'sounds': sounds_args, 'weather': weather_args}
+    selected_dropdowns = {'names': list(map(str, names_args)), 'parks': list(map(str, park_zone_args)),
+                          'subways': list(map(str, subway_args)), 'sounds': list(map(str, sounds_args)), 'weather': list(map(str, weather_args))}
 
     query = ("SELECT spot.zoneid, spot.dateofspotting, spot.location, s.color, s.age, s.firstname, park.zonename, sound.name, subway.name, subway.line " +
              "FROM spotted_at spot " +
