@@ -147,16 +147,6 @@
       }
     ).addTo(mymap);
 
-    // Popup coords where clicking
-    var popup = L.popup();
-    function onMapClick(e) {
-      popup
-        .setLatLng(e.latlng)
-        .setContent("You clicked the map at " + e.latlng.toString())
-        .openOn(mymap);
-    }
-    mymap.on("click", onMapClick);
-
     //Jquery populate map with concessions and spottings
     function populate() {
       // Plot the concessions
@@ -176,11 +166,15 @@
       });
 
       // Plot the spottings
+      var squirrelIcon = L.icon({
+        iconUrl: 'https://dl.dropbox.com/s/02g9z86y38dchv6/squirrelpic.png',
+        iconSize: [30,30]
+      })
       var spottings = {{spottings|safe}};
       var squirls = L.markerClusterGroup();
       spottings.forEach(function(spotting) {
         var location = spotting["location"].split(/[(,),]/);
-        squirls.addLayer(L.marker([location[1], location[2]])
+        squirls.addLayer(L.marker([location[1], location[2]], {icon: squirrelIcon})
           .bindPopup(
             `Name: ${spotting["firstname"]} <br/>
             Zone: ${spotting["zone"]} <br/>
