@@ -161,17 +161,6 @@
     function populate() {
       // Plot the concessions
       var concessions = {{concessions|safe}};
-      /*
-      var concession_markers = L.markerClusterGroup();
-      concessions.forEach(function(conc) {
-        var location = conc["location"].split(/[(,),]/);
-        concession_markers.addLayer(L.marker([location[1], location[2]])
-          .bindPopup(
-            `${conc["name"]} <br/>
-            Type: ${conc["type"]}`
-          ));
-      mymap.addLayer(concession_markers);
-      */
       var burgerIcon = L.icon({
         iconUrl: 'https://dl.dropbox.com/s/cuswpktrbj5a3ti/hamburger-icon.png',
         iconSize: [15,15]
