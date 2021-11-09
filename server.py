@@ -153,7 +153,7 @@ def index():
     concessions = []
     for result in cursor:
         concessions.append(
-            {'name': result[0], 'location': result[1], 'type': result[2]})
+            {'name': str(result[0]), 'location': result[1], 'type': str(result[2])})
     cursor.close()
 
     # Get dropdown values
