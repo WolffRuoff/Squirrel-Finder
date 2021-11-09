@@ -135,7 +135,7 @@ def index():
     for result in cursor:
         subway = result[8] + " (Lines: " + result[9] + ")"
         spottings.append({'squirrelid': result[0], 'dateofspotting': result[1].isoformat(),
-                         'location': result[2], 'color': result[3], 'age': result[4], 'firstname': result[5], 'zone': result[6], 'sound': result[7], 'subway': subway})
+                         'location': result[2], 'color': str(result[3]), 'age': str(result[4]), 'firstname': str(result[5]), 'zone': str(result[6]), 'sound': str(result[7]), 'subway': str(subway)})
     cursor.close()
     # Sanitizing
     for spotting in spottings:
