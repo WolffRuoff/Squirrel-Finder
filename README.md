@@ -1,4 +1,7 @@
 # Squirrel-Finder
+
+![Sample of the website](Demo_Picture.png)
+
 # Central Park Squirrel Finder
 For our Intro to Databases class at Columbia University, Marvin Chan and Ethan Ruoff created a Squirrel Finder Application currently based in Central Park. The purpose of our application is to allow avid squirrel fans to learn about squirrels in Central Park by examining the last sighting of their favorite squirrels, observing overall patterns among squirrel appearances, and viewing notable features within the proximity of said sighting. 
 
